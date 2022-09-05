@@ -26,6 +26,7 @@ const PORT = 20001;
 const HOST = '0.0.0.0';
 
 const app = express();
+app.use(express.json())
 
 const {pulsarRouter} = require("./pulsar/router");
 app.use('/v1/pulsar', pulsarRouter)

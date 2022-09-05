@@ -19,15 +19,16 @@
 
 'use strict';
 
-const express = require('express');
-const {topicController} = require("./topic");
-const pulsarRouter = express.Router();
+class TopicController {
+    async healthCheck(req, res) {
+        let tenant = req.params.tenant;
+        let namespace = req.params.namespace;
+        let host = req.body.host;
+        let port = req.body.port;
+        res.status(200).send('Success');
+    }
+}
 
-pulsarRouter.route('/hello').get(function (req, res) {
-    res.status(200).send('Hello, pulsar');
-})
+const topicController = new TopicController();
 
-pulsarRouter.route('/tenants/:tenant/namespaces/:namespace/topics/health-check')
-    .post(topicController.healthCheck)
-
-module.exports = {pulsarRouter}
+module.exports = {topicController}
