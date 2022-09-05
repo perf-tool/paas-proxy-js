@@ -19,12 +19,15 @@
 
 'use strict';
 
+const uuid = require('uuid');
+
 class TopicController {
     async healthCheck(req, res) {
         let tenant = req.params.tenant;
         let namespace = req.params.namespace;
         let host = req.body.host;
         let port = req.body.port;
+        let randomTopic= uuid.v4();
         res.status(200).send('Success');
     }
 }
