@@ -19,6 +19,7 @@
 
 'use strict';
 
+const { Producer, Consumer, logLevel } = require('pulsar-flex')
 const uuid = require('uuid');
 
 class TopicController {
@@ -28,7 +29,41 @@ class TopicController {
         let host = req.body.host;
         let port = req.body.port;
         let randomTopic= uuid.v4();
-        res.status(200).send('Success');
+        const producer = new Producer({
+            topic: `persistent://${tenant}/${namespace}/${randomTopic}`,
+            discoveryServers: [`${host}:${port}`],
+            producerAccessMode: Producer.ACCESS_MODES.SHARED,
+            logLevel: logLevel.INFO
+        })
+        const consumer = new Consumer({
+            topic: `persistent://${tenant}/${namespace}/${randomTopic}`,
+            discoveryServers: [`${host}:${port}`],
+            subType: Consumer.SUB_TYPES.EXCLUSIVE,
+            consumerName: 'proxy-health-check',
+            subscription: 'proxy-health-check',
+            receiveQueueSize: 1000,
+            logLevel: logLevel.INFO,
+        })
+        await consumer.subscribe()
+        await producer.create()
+        let randomMessage = uuid.v4();
+        await producer.sendMessage({ payload: randomMessage})
+        let receiveMessage;
+        await new Promise((resolve, reject) => {
+            consumer.run({
+                onMessage: ({ message, properties }) => {
+                    receiveMessage = message.toString();
+                    resolve();
+                },
+            });
+        });
+        await producer.close()
+        await consumer.unsubscribe()
+        if (receiveMessage === randomMessage) {
+            res.status(200).send('Success');
+        } else {
+            res.status(500).send('Failed');
+        }
     }
 }
 
