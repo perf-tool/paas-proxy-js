@@ -54,7 +54,7 @@ jobs:
           platforms: linux/amd64,linux/arm64
       - name: Save Docker Images
         run: docker pull perftool/paas-proxy:js;docker save perftool/paas-proxy:js -o paas-proxy-js.tar.gz
-      - uses: dev-drprasad/delete-tag-and-release@v0.2.0
+      - uses: dev-drprasad/delete-tag-and-release@v1.0.1
         with:
           delete_release: true
           tag_name: latest_docker_image
